@@ -9,6 +9,8 @@ import (
 	"os"
 	"os/exec"
 	"time"
+
+	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -41,15 +43,16 @@ func (s *Service) RunContainers(ctx context.Context, request *dto.StartContainer
 	imageToConnect := ""
 	resolvedURL := request.Images.ResolveURL()
 	request.OpenUrl = resolvedURL
+	errGroup := &errgroup.Group{}
 
 	for _, image := range request.Images {
-		go func() {
+		errGroup.Go(func() error {
 			request.UpdateContainerStatus(image.Image, false)
 			image.NetworkID = request.NetworkID
 
 			containerID, err := s.startContainer(ctx, image)
 			if err != nil {
-				return
+				return err
 			}
 
 			request.UpdateContainerStatus(image.Image, true)
@@ -57,7 +60,14 @@ func (s *Service) RunContainers(ctx context.Context, request *dto.StartContainer
 			if image.OpenTerminal {
 				imageToConnect = containerID
 			}
-		}()
+
+			return nil
+		})
+	}
+
+	err := errGroup.Wait()
+	if err != nil {
+		return err
 	}
 
 	if imageToConnect != "" {

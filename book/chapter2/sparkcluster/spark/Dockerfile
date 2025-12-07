@@ -25,5 +25,3 @@ RUN cp hadoop-aws-3.3.2.jar /opt/spark/jars && \
     cp aws-java-sdk-bundle-1.12.262.jar /opt/spark/jars
 
 USER spark
-
-ENTRYPOINT ["sleep", "infinity"]

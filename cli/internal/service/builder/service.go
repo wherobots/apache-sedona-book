@@ -5,7 +5,10 @@ import (
 	domainerrors "cli/internal/domain/errors"
 	"context"
 	"errors"
-	"sync"
+	"fmt"
+
+	"go.uber.org/zap"
+	"golang.org/x/sync/errgroup"
 )
 
 type ImageClient interface {
@@ -15,6 +18,7 @@ type ImageClient interface {
 
 type Service struct {
 	imageClient ImageClient
+	logger      *zap.Logger
 }
 
 func NewService() *Service {
@@ -23,6 +27,11 @@ func NewService() *Service {
 
 func (s *Service) WithImageClient(imageClient ImageClient) *Service {
 	s.imageClient = imageClient
+	return s
+}
+
+func (s *Service) WithLogger(logger *zap.Logger) *Service {
+	s.logger = logger
 	return s
 }
 
@@ -39,34 +48,33 @@ func (s *Service) Build(ctx context.Context, request *dto.StartContainersRequest
 	return nil
 }
 
-func (s *Service) buildImages(ctx context.Context, request *dto.StartContainersRequest) error {
-	var wg sync.WaitGroup
+func (s *Service) buildImages(ctx context.Context, request *dto.StartContainersRequest) (err error) {
+	errGroup := &errgroup.Group{}
 
 	for _, img := range request.Images.GetImagesNames() {
-		wg.Add(1)
-
-		go func() {
-			defer wg.Done()
-			err := s.imageClient.Exists(ctx, img.Name, img.Tag)
+		errGroup.Go(func() error {
+			err = s.imageClient.Exists(ctx, img.Name, img.Tag)
 			if err != nil && !errors.Is(err, domainerrors.ErrImageNotFound) {
-				return
-			}
-
-			if err == nil {
-				request.UpdateBuildImageStatus(img.FullName(), true)
-				return
+				s.logger.Error(err.Error(), zap.String("image", img.FullName()))
+				return err
 			}
 
 			err = s.imageClient.BuildImage(ctx, img.Name, img.Tag)
 			if err != nil {
-				return
+				s.logger.Debug(fmt.Sprint("Failed to build image: ", img.FullName(), " error: ", err.Error()))
+				return err
 			}
 
 			request.UpdateBuildImageStatus(img.FullName(), true)
-		}()
+
+			return nil
+		})
 	}
 
-	wg.Wait()
+	err = errGroup.Wait()
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

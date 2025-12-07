@@ -96,7 +96,6 @@ func (c *Container) Run(ctx context.Context, request *entity.ContainerRunRequest
 	exposedPorts := make(nat.PortSet, len(request.ExposedPorts))
 	imageName := strings.Split(request.Image, ":")[0]
 	parts := strings.Split(imageName, "/")
-	println("Aaaa")
 	imageName = parts[len(parts)-1]
 
 	for _, containerPort := range request.ExposedPorts {
@@ -239,16 +238,19 @@ func (c *Container) IsHealthy(ctx context.Context, containerID string) (bool, er
 	}
 
 	state := result.State
-
 	if state == nil {
 		return false, nil
+	}
+
+	if state.Status == "running" && state.Health == nil {
+		return true, nil
 	}
 
 	if state.Health == nil {
 		return false, nil
 	}
 
-	return result.State.Health != nil && result.State.Health.Status == "healthy", nil
+	return result.State.Health.Status == "healthy" || result.State.Health.Status == "running", nil
 }
 
 func (c *Container) PullImage(ctx context.Context, img string) error {

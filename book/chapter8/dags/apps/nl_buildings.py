@@ -5,7 +5,7 @@ import pyspark.sql.functions as f
 from pyspark.sql.session import SparkSession
 import os
 
-bucket_name = os.environ.get("SEDONA_SOURCE_BUCKET", "sedona-book-bucket")
+bucket_name = os.environ.get("SEDONA_SOURCE_BUCKET", "apache-sedona-book")
 
 CATALOG_NAME = "sedona_catalog"
 

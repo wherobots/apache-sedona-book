@@ -12,5 +12,6 @@ ENV PGPASSWORD=postgis
 
 COPY entrypoint.sh /app
 RUN chmod +x /app/entrypoint.sh
+RUN chmod +x /app/migrate.sh
 
 ENTRYPOINT ["/app/entrypoint.sh"]

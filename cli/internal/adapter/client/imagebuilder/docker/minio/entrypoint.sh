@@ -15,7 +15,7 @@ echo "PASSWORD: $MINIO_ROOT_PASSWORD"
 # creating buckets
 echo "Creating bucket apache-sedona-book and uploading sources..."
 mc alias set sedona http://localhost:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD
-mc mb sedona/apache-sedona-book || true
-mc cp /app/sources/ sedona/apache-sedona-book/ --recursive
+mc mb sedona/apache-sedona-book-local || true
+mc cp /app/sources/ sedona/apache-sedona-book-local/ --recursive || true
 
 sleep infinity

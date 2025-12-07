@@ -8,18 +8,13 @@ images:
       POSTGRES_PASSWORD: sedona
       POSTGRES_DB: sedona
   airflow:
-    name: sedona-airflow:2.10.2
+    name: airflow:2.10.2
     ports:
       - "8080:8080"
     environment:
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
       AIRFLOW__CORE__EXECUTOR: 'SequentialExecutor'
     mount-path: /opt/airflow
-    health-check:
-      test: [ "CMD-SHELL", "curl -f http://localhost:8080/ || exit 1" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
   debezium:
     name: debezium-sedona:3.2.1
     container-name: debezium-sedona
@@ -93,14 +88,9 @@ images:
       retries: 5
   postgis:
     name: postgis:17-3.4
-    mount-path: /opt/workspace
+#    mount-path: /opt/workspace
     ports:
       - "5432:5432"
-    health-check:
-      test: [ "CMD-SHELL", "pg_isready -h localhost -p 5432 -U postgres || exit 1" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
   thriftserver:
     name: thriftserver:1.0
     show-in-browser: false
@@ -115,11 +105,6 @@ images:
     show-in-browser: false
     container-name: sedonadbt
     mount-path: /opt/workspace
-    health-check:
-      test: [ "CMD-SHELL", "curl -f http://localhost:8888/ || exit 1" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
     ports:
       - "8888:8888"
   sedona:
@@ -166,8 +151,7 @@ images:
       timeout: 5s
       retries: 5
   minio:
-    name: quay.io/minio/minio:latest
-    command: ["server", "/data", "--console-address", ":9001"]
+    name: minio:1.0.0
     container-name: minio
     ports:
       - "9000:9000"
@@ -175,11 +159,6 @@ images:
     environment:
       MINIO_ROOT_USER: sedona
       MINIO_ROOT_PASSWORD: sedona_password
-    health-check:
-      test: [ "CMD", "mc", "ready", "local" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
     mount-path: /app/sources
   ors:
     name: ors:v8.0.0

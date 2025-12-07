@@ -28,11 +28,8 @@ RUN cp aws-java-sdk-bundle-1.12.262.jar /home/airflow/.local/lib/python3.12/site
     && cp iceberg-spark-runtime-3.5_2.12-1.9.2.jar /home/airflow/.local/lib/python3.12/site-packages/pyspark/jars \
     && cp postgresql-42.7.4.jar /home/airflow/.local/lib/python3.12/site-packages/pyspark/jars
 
-COPY init.sh init.sh
 RUN mkdir /home/airflow/.local/lib/python3.12/site-packages/pyspark/conf
 COPY spark-defaults.conf /home/airflow/.local/lib/python3.12/site-packages/pyspark/conf
-
-RUN chmod +x init.sh
 
 RUN chmod 777 -R /home/airflow/.local/lib/python3.12/site-packages/pyspark/conf
 

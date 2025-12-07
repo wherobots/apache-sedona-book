@@ -6,7 +6,7 @@ from airflow.utils.decorators import apply_defaults
 from airflow.exceptions import AirflowException, AirflowSkipException
 import boto3
 
-bucket_name = "apache-sedona-book"
+bucket_name = "apache-sedona-book-local"
 prefix = "transportation/releases/"
 
 

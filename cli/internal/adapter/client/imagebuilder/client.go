@@ -5,15 +5,26 @@ import (
 	domainerrors "cli/internal/domain/errors"
 	"context"
 	"embed"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/fs"
+	"strings"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/errdefs"
+	"go.uber.org/zap"
 )
+
+type ErrorDetail struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+type DockerBuildResponse struct {
+	ErrorDetail *ErrorDetail `json:"errorDetail,omitempty"`
+}
 
 //go:embed docker
 var sedona embed.FS
@@ -25,11 +36,13 @@ type DockerClient interface {
 
 type Client struct {
 	client DockerClient
+	logger *zap.Logger
 }
 
-func NewClient(client DockerClient) *Client {
+func NewClient(client DockerClient, logger *zap.Logger) *Client {
 	return &Client{
 		client: client,
+		logger: logger,
 	}
 }
 
@@ -47,21 +60,28 @@ func (c *Client) BuildImage(ctx context.Context, imageName string, tag string) e
 			Dockerfile: "Dockerfile",
 		})
 	if err != nil {
+		c.logger.Error("Failed to build image", zap.String("image", imageName), zap.String("tag", tag), zap.Error(err))
 		return err
 	}
 
+	bodyBytes, err := io.ReadAll(imageBuildResponse.Body)
+	if err != nil {
+		return err
+	}
 	defer imageBuildResponse.Body.Close()
-	lines := make([]byte, 1024)
-	// Read the response to ensure the image is built
-	// You can log or process the response as needed
-	for {
-		n, err := imageBuildResponse.Body.Read(lines)
-		if n == 0 {
-			break
+
+	lines := strings.Split(string(bodyBytes), "\r\n")
+
+	for index, l := range lines {
+		var msg DockerBuildResponse
+		err := json.Unmarshal([]byte(l), &msg)
+		if err != nil {
+			continue
 		}
 
-		if err != nil && err != io.EOF {
-			return err
+		if msg.ErrorDetail != nil {
+			c.logger.Error("Docker build error", zap.Int("code", msg.ErrorDetail.Code), zap.String("message", msg.ErrorDetail.Message), zap.String("image", imageName), zap.String("tag", tag), zap.Int("line", index))
+			return fmt.Errorf("docker build error: %s", msg.ErrorDetail.Message)
 		}
 	}
 

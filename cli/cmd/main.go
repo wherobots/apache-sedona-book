@@ -9,8 +9,12 @@ import (
 	"cli/internal/service/provision"
 	"cli/internal/service/resolver"
 	"cli/internal/service/run"
+	"os"
+
 	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 func main() {
@@ -19,11 +23,24 @@ func main() {
 
 	}
 
+	atomicLevel := zap.NewAtomicLevel()
+	atomicLevel.SetLevel(zap.ErrorLevel)
+
+	logger := zap.New(zapcore.NewCore(
+		zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()),
+		zapcore.AddSync(os.Stdout),
+		atomicLevel,
+	))
+	defer logger.Sync()
+
 	cc := containerClient.NewContainer(dockerClient)
 	resolverService := resolver.NewService()
-	imageClient := imagebuilder.NewClient(dockerClient)
+	imageClient := imagebuilder.NewClient(dockerClient, logger)
 
-	builderService := builder.NewService().WithImageClient(imageClient)
+	builderService := builder.NewService().
+		WithImageClient(imageClient).
+		WithLogger(logger)
+
 	networkService := network.NewService(cc)
 	containerService := run.NewService(cc)
 
@@ -31,7 +48,8 @@ func main() {
 		WithBuilderService(builderService).
 		WithNetworkService(networkService).
 		WithResolver(resolverService).
-		WithContainerService(containerService)
+		WithContainerService(containerService).
+		WithLogger(logger)
 
 	cliClient := cli.NewClient(provisioningService)
 	commands := cliClient.GetCommands()

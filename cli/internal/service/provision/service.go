@@ -5,6 +5,8 @@ import (
 	"cli/internal/domain/entity"
 	"context"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 const (
@@ -39,6 +41,7 @@ type Service struct {
 	builderService   BuilderService
 	resolver         Resolver
 	networkService   NetworkService
+	logger           *zap.Logger
 }
 
 func NewService() *Service {
@@ -62,6 +65,11 @@ func (s *Service) WithResolver(resolver Resolver) *Service {
 
 func (s *Service) WithNetworkService(networkService NetworkService) *Service {
 	s.networkService = networkService
+	return s
+}
+
+func (s *Service) WithLogger(logger *zap.Logger) *Service {
+	s.logger = logger
 	return s
 }
 
@@ -105,6 +113,7 @@ func (s *Service) Provision(ctx context.Context, request *dto.ProvisionRequest) 
 		// start containers
 		err = s.containerService.RunContainers(ctx, runContainersRequest)
 		if err != nil {
+			s.logger.Error("can't start container", zap.Error(err))
 			errorsChan <- err
 			return
 		}

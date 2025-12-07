@@ -27,7 +27,7 @@ sections:
     images:
       - image: airflow
         volumes:
-          - chapter6/dags/:/opt/airflow/dags/
+          - chapter6/dags/:/opt/airflow/dags/chapter6
         open-webui:
           path: http://localhost:8080
       - image: minio
@@ -39,7 +39,6 @@ sections:
     images:
       - image: sedonadbt
         volumes:
-          - chapter6/images:/opt/workspace/images
           - chapter6/geospatialdbt:/opt/workspace
         open-terminal: true
       - image: thriftserver
@@ -49,6 +48,7 @@ sections:
       - image: sedona
         volumes:
           - chapter6/VectorGeospatialVisualization.ipynb:/opt/workspace/VectorGeospatialVisualization.ipynb
+          - chapter6/kepler_map_config.json:/opt/workspace/kepler_map_config.json
         open-webui:
           path: http://localhost:8888/lab/workspaces/auto-R/tree/VectorGeospatialVisualization.ipynb
   - title: Extra Materials - Prefect

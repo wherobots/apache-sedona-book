@@ -5,12 +5,12 @@ import (
 	domainerrors "cli/internal/domain/errors"
 	"context"
 	"errors"
-	"github.com/docker/docker/api/types/container"
 	"os"
 	"os/exec"
-	"strings"
 	"sync"
 	"time"
+
+	"github.com/docker/docker/api/types/container"
 )
 
 const (
@@ -138,14 +138,7 @@ func (s *Service) StartContainers(ctx context.Context, request *entity.RunPreReq
 				imageToConnect = containerInfo.ID
 			}
 
-			if len(image.PostInitCommand) == 0 {
-				return
-			}
-
-			err = s.client.RunScript(ctx, containerInfo.ID, image.PostInitCommand)
-			if err != nil {
-				return
-			}
+			return
 		}()
 	}
 

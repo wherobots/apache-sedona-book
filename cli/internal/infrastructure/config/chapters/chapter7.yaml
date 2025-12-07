@@ -68,3 +68,4 @@ sections:
           path: http://localhost:8888/lab/workspaces/auto-R/tree/AccidentAnalysis.ipynb
         volumes:
           - chapter7/AccidentAnalysis.ipynb:/opt/workspace/AccidentAnalysis.ipynb
+          - chapter7/slope.py:/opt/workspace/slope.py

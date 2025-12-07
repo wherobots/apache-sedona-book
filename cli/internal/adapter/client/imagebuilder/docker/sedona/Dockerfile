@@ -30,14 +30,14 @@ RUN pip install rtree pystac
 RUN wget https://repo1.maven.org/maven2/org/apache/iceberg/iceberg-spark-runtime-3.5_2.12/1.9.2/iceberg-spark-runtime-3.5_2.12-1.9.2.jar
 RUN cp iceberg-spark-runtime-3.5_2.12-1.9.2.jar /opt/spark/jars
 
-COPY s3-conf.conf ./
-COPY apply.sh ./
-
 RUN pip install pyspark==3.5.2
 RUN pip install contextily
 RUN pip install folium
 RUN pip install mapclassify
 RUN pip install xgboost
 RUN pip install "apache-sedona[db]"
+
+COPY s3-conf.conf ./
+COPY apply.sh ./
 
 CMD ["/bin/bash", "./apply.sh"]

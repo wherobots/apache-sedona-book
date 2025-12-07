@@ -31,6 +31,7 @@ sections:
       - image: mongo
       - image: debezium
       - image: kafka
+      - image: minio
   - title: "Hands-On Use Case: NYC Taxi Data Analysis"
     id: hands-on-use-case-nyc-taxi-data-analysis
     images:
@@ -39,3 +40,6 @@ sections:
           path: http://localhost:8888/lab/workspaces/auto-R/tree/NewYorkTaxiAnalysis.ipynb
         volumes:
           - chapter3/NewYorkTaxiAnalysis.ipynb:/opt/workspace/NewYorkTaxiAnalysis.ipynb
+          - chapter3/popular_routes_config.json:/opt/workspace/popular_routes_config.json
+          - chapter3/populardropoff_config.json:/opt/workspace/populardropoff_config.json
+          - chapter3/analysis_area.json:/opt/workspace/analysis_area.json

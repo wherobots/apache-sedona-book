@@ -26,6 +26,7 @@ sections:
         volumes:
           - chapter5/images:/opt/workspace/images
           - chapter5/Zonal Statistics.ipynb:/opt/workspace/Zonal Statistics.ipynb
+          - chapter5/zone_stats_config.json:/opt/workspace/zone_stats_config.json
   - title: Map Algebra
     id: map-algebra
     images:
@@ -50,3 +51,4 @@ sections:
           path: http://localhost:8888/lab/workspaces/auto-R/tree/Use Case Insurance Risk Modeling.ipynb
         volumes:
           - chapter5/Use Case Insurance Risk Modeling.ipynb:/opt/workspace/Use Case Insurance Risk Modeling.ipynb
+          - chapter5/warsaw_viz_config.json:/opt/workspace/warsaw_viz_config.json

@@ -6,8 +6,6 @@ services:
     ports:
       - "8888:8888"
     environment:
-      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       SEDONA_SOURCE_BUCKET: ${SEDONA_SOURCE_BUCKET}
     profiles:
       - "chapter-7-5"
@@ -43,8 +41,6 @@ services:
       - "8888:8888"
     environment:
       SEDONA_SOURCE_BUCKET: ${SEDONA_SOURCE_BUCKET}
-      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       AWS_REGION: ${AWS_REGION}
     profiles:
       - "chapter-3-1"
@@ -64,6 +60,7 @@ services:
       - "chapter-6-5"
       - "chapter-6-1"
       - "chapter-6-2"
+      - "chapter-6-4"
       - "chapter-7-1"
       - "chapter-7-2"
       - "chapter-7-3"
@@ -104,6 +101,7 @@ services:
       - ./book/chapter6/ManipulatingGeospatialVectorData.ipynb:/opt/workspace/chapter6/ManipulatingGeospatialVectorData.ipynb
       - ./book/chapter6/RasterDataTools.ipynb:/opt/workspace/chapter6/RasterDataTools.ipynb
       - ./book/chapter6/ID73_S20_W70_RP10_depth.tif:/opt/workspace/chapter6/ID73_S20_W70_RP10_depth.tif
+      - ./book/chapter6/DBTTransformations.ipynb:/opt/workspace/chapter6/DBTTransformations.ipynb
       # chapter 7
       - ./book/chapter7/ClusteringWithApacheSedona.ipynb:/opt/workspace/chapter7/ClusteringWithApacheSedona.ipynb
       - ./book/chapter7/OutlierDetection.ipynb:/opt/workspace/chapter7/OutlierDetection.ipynb
@@ -143,15 +141,12 @@ services:
       context: "./cli/internal/adapter/client/imagebuilder/docker/airflow"
     container_name: airflow
     environment:
-      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       SEDONA_SOURCE_BUCKET: ${SEDONA_SOURCE_BUCKET}
     profiles:
       - "chapter-6-3"
       - "chapter-8-4"
     ports:
       - "8080:8080"
-    command: ["./entrypoint.sh"]
     volumes:
       - ./book/chapter6/dags/:/opt/airflow/dags/chapter6
       - ./book/chapter8/dags/:/opt/airflow/dags/chapter8
@@ -176,7 +171,6 @@ services:
     ports:
       - "9000:9000"
       - "9001:9001"
-    entrypoint: ["./entrypoint.sh"]
     volumes:
       - ./book/source_data/transportation:/app/sources/transportation
       - ./data:/app/sources/source_data
@@ -264,7 +258,7 @@ services:
       - "27017:27017"
     profiles:
       - "chapter-3-3"
-  kafka:
+  kafka-sedona:
     build:
       context: "./cli/internal/adapter/client/imagebuilder/docker/kafka-sedona"
     container_name: kafka-sedona
@@ -292,7 +286,7 @@ services:
     profiles:
       - "chapter-3-3"
     depends_on:
-      - kafka
+      - kafka-sedona
       - postgis
     ports:
       - "8083:8083"
@@ -313,4 +307,4 @@ services:
     profiles:
       - "chapter-3-3"
     depends_on:
-      - kafka
+      - kafka-sedona

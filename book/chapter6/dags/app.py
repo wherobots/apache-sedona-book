@@ -17,7 +17,7 @@ sedona = s.SedonaContext.create(config)
 
 transportation = sedona.read \
     .format("geoparquet") \
-    .load(f"s3a://apache-sedona-book/transportation/releases/{processing_date}")
+    .load(f"s3a://apache-sedona-book-local/transportation/releases/{processing_date}")
 
 transportation\
     .withColumn("geohash", f.expr("ST_GeoHash(geometry, 6)")) \
@@ -25,4 +25,4 @@ transportation\
     .write \
     .format("geoparquet") \
     .mode("overwrite") \
-    .save(f"s3a://apache-sedona-book/transportation_processed/{processing_date}")
+    .save(f"s3a://apache-sedona-book-local/transportation_processed/{processing_date}")

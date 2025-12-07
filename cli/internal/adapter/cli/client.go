@@ -7,6 +7,7 @@ import (
 	"cli/internal/domain/dto"
 	"cli/internal/domain/entity"
 	"context"
+	"os"
 	"sync"
 	"time"
 
@@ -124,6 +125,7 @@ func (c *Client) provision(ctx context.Context) *cobra.Command {
 				case givenErr := <-startContainersResponse.Errors:
 					if givenErr != nil {
 						cancel()
+						os.Exit(0)
 						return
 					}
 				case <-time.Tick(time.Millisecond * 1000):
@@ -131,7 +133,7 @@ func (c *Client) provision(ctx context.Context) *cobra.Command {
 			}
 		}()
 
-		ctxWithCancel, cancel = context.WithCancel(ctx)
+		ctxWithCancel, cancel = context.WithCancel(ctxWithCancel)
 
 		go animation.BuildingImages(ctxWithCancel, startContainersResponse)
 
