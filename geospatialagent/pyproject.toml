@@ -13,7 +13,7 @@ dependencies = [
     "pandas>=2.3.3",
     "protobuf>=6.33.0",
     "pyarrow>=22.0.0",
-    "pyspark==3.5.4",
+    "pyspark==3.5.8",
     "setuptools>=80.9.0",
 ]
 
